@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>평택 테니스 커뮤니티</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f8f9fa;
+      background-image: linear-gradient(to bottom, rgba(243, 244, 246, 0.8), rgba(243, 244, 246, 0.8)), url('https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+    }
+    .hidden {
+      display: none;
+    }
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+    .card:hover {
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+    .btn {
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+    .nav-shadow {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .weather-icon {
+      font-size: 2.5rem;
+      margin-right: 1rem;
+    }
+    .post-item {
+      border-bottom: 1px solid #f0f0f0;
+      transition: all 0.2s ease;
+    }
+    .post-item:hover {
+      background-color: #f9f9f9;
+    }
+    .modal-container {
+      backdrop-filter: blur(5px);
+    }
+    .modal-content {
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <nav class="bg-white text-gray-800 py-4 px-6 nav-shadow sticky top-0 z-10">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="flex items-center">
+        <i class="fas fa-tennis-ball text-green-500 mr-2 text-2xl"></i>
+        <h1 class="text-xl font-bold text-green-600">평택 테니스 커뮤니티</h1>
+      </div>
+      <div id="navButtons">
+        <button id="loginBtn" class="btn bg-white border border-green-500 text-green-600 px-4 py-2 rounded-full mr-2 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500">로그인</button>
+        <button id="registerBtn" class="btn bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600">회원가입</button>
+      </div>
+      <div id="userInfo" class="hidden">
+        <div class="flex items-center">
+          <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-500 mr-2">
+            <i class="fas fa-user"></i>
+          </div>
+          <span id="username" class="mr-3 font-medium"></span>
+          <button id="logoutBtn" class="btn bg-gray-100 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300">로그아웃</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto p-6">
+    <!-- 날씨 정보 위젯 -->
+    <div class="card bg-white p-6 mb-8">
+      <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+        <i class="fas fa-cloud-sun text-green-500 mr-2"></i>
+        오늘의 테니스 날씨
+      </h2>
+      <div id="weatherWidget" class="flex flex-wrap items-center">
+        <div class="flex items-center mr-8 mb-4 md:mb-0">
+          <div id="weatherIcon" class="weather-icon text-green-500">
+            <i class="fas fa-sun"></i>
+          </div>
+          <div>
+            <p id="location" class="text-lg font-medium text-gray-700"></p>
+            <p id="temperature" class="text-3xl font-bold text-gray-800"></p>
+            <p id="condition" class="text-gray-500"></p>
+          </div>
+        </div>
+        <div class="border-l pl-8 mb-4 md:mb-0">
+          <div class="flex items-center mb-2">
+            <i class="fas fa-tint text-blue-400 mr-2"></i>
+            <p>습도: <span id="humidity" class="font-medium"></span></p>
+          </div>
+          <div class="flex items-center">
+            <i class="fas fa-wind text-gray-500 mr-2"></i>
+            <p>풍속: <span id="windSpeed" class="font-medium"></span></p>
+          </div>
+          <!-- 테니스 점수 -->
+          <div id="tennisScore" class="mt-2">
+            <!-- 테니스 점수 정보가 여기에 들어갑니다 -->
+          </div>
+        </div>
+        <div id="forecast" class="flex space-x-6 ml-auto mt-4 md:mt-0">
+          <!-- 날씨 예보가 여기에 들어갑니다 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- 게시판 영역 -->
+      <div class="lg:w-2/3">
+        <div class="card bg-white p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center">
+              <i class="fas fa-comments text-green-500 mr-2"></i>
+              커뮤니티 게시판
+            </h2>
+            <button id="newPostBtn" class="btn bg-green-500 text-white px-5 py-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center">
+              <i class="fas fa-pen-to-square mr-2"></i>
+              글쓰기
+            </button>
+          </div>
+          <div id="postsList" class="space-y-4">
+            <!-- 게시글이 여기에 들어갑니다 -->
+            <div class="py-12 text-center text-gray-400">
+              <i class="fas fa-clipboard text-5xl mb-4"></i>
+              <p>아직 게시글이 없습니다.</p>
+              <p class="text-sm">첫 번째 게시글을 작성해보세요!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사이드바 영역 -->
+      <div class="lg:w-1/3 space-y-6">
+        <div class="card bg-white p-6">
+          <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+            <i class="fas fa-info-circle text-green-500 mr-2"></i>
+            테니스 정보
+          </h2>
+          <ul class="space-y-3">
+            <li class="flex items-center">
+              <i class="fas fa-map-marker-alt text-red-400 mr-3"></i>
+              <a href="#" id="showTennisCourts" class="text-gray-700 hover:text-green-600 hover:underline">평택시 테니스장 정보</a>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-graduation-cap text-blue-400 mr-3"></i>
+              <a href="#" class="text-gray-700 hover:text-green-600 hover:underline">테니스 기초 레슨</a>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-table-tennis-paddle-ball text-yellow-500 mr-3"></i>
+              <a href="#" class="text-gray-700 hover:text-green-600 hover:underline">라켓 추천 가이드</a>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-users text-purple-400 mr-3"></i>
+              <a href="#" class="text-gray-700 hover:text-green-600 hover:underline">동호회 모집 공고</a>
+            </li>
+          </ul>
+        </div>
+        <div class="card bg-white p-6">
+          <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+            <i class="fas fa-bullhorn text-green-500 mr-2"></i>
+            공지사항
+          </h2>
+          <div class="p-4 bg-green-50 rounded-lg border border-green-100">
+            <p class="text-gray-700 mb-2">
+              <span class="font-semibold">평택 테니스 커뮤니티</span>에 오신 것을 환영합니다!
+            </p>
+            <p class="text-sm text-gray-600">
+              이 사이트는 MVP 버전으로, 더 많은 기능이 추가될 예정입니다. 의견이나 제안사항이 있으시면 알려주세요.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달: 로그인 -->
+  <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-md modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">로그인</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="loginForm">
+        <div class="mb-5">
+          <label class="block text-gray-700 mb-2 font-medium" for="loginUsername">아이디</label>
+          <input id="loginUsername" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="아이디 입력">
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 mb-2 font-medium" for="loginPassword">비밀번호</label>
+          <input id="loginPassword" type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="비밀번호 입력">
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" class="btn bg-gray-200 text-gray-700 px-5 py-3 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 closeModal">취소</button>
+          <button type="submit" class="btn bg-green-500 text-white px-5 py-3 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">로그인</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 모달: 회원가입 -->
+  <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-md modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">회원가입</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="registerForm">
+        <div class="mb-5">
+          <label class="block text-gray-700 mb-2 font-medium" for="registerUsername">아이디</label>
+          <input id="registerUsername" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="사용할 아이디 입력">
+        </div>
+        <div class="mb-5">
+          <label class="block text-gray-700 mb-2 font-medium" for="registerPassword">비밀번호</label>
+          <input id="registerPassword" type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="비밀번호 입력">
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 mb-2 font-medium" for="confirmPassword">비밀번호 확인</label>
+          <input id="confirmPassword" type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="비밀번호 확인">
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" class="btn bg-gray-200 text-gray-700 px-5 py-3 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 closeModal">취소</button>
+          <button type="submit" class="btn bg-green-500 text-white px-5 py-3 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">가입하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 모달: 글쓰기 -->
+  <div id="postModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-md modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">새 게시글 작성</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="postForm">
+        <div class="mb-5">
+          <label class="block text-gray-700 mb-2 font-medium" for="postTitle">제목</label>
+          <input id="postTitle" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="제목을 입력하세요">
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 mb-2 font-medium" for="postContent">내용</label>
+          <textarea id="postContent" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent h-36" required placeholder="내용을 입력하세요"></textarea>
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" class="btn bg-gray-200 text-gray-700 px-5 py-3 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 closeModal">취소</button>
+          <button type="submit" class="btn bg-green-500 text-white px-5 py-3 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">등록</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 모달: 테니스장 정보 -->
+  <div id="courtInfoModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-4xl h-5/6 modal-content overflow-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">평택시 테니스장 정보</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="courtsList" class="space-y-6">
+        <!-- 테니스장 정보가 여기에 들어갑니다 -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/script.js"></script>
+</body>
+</html>
