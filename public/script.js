@@ -322,7 +322,12 @@ loginForm.addEventListener('submit', async (e) => {
   const password = document.getElementById('loginPassword').value;
   
   try {
-    const response = await axios.post('/api/login', { username, password });
+    const response = await axios.post('/api/auth', { 
+      action: 'login',
+      username, 
+      password 
+    });
+    
     if (response.data.success) {
       currentUser = response.data.user;
       localStorage.setItem('user', JSON.stringify(currentUser));
@@ -331,7 +336,7 @@ loginForm.addEventListener('submit', async (e) => {
       loginForm.reset();
     }
   } catch (error) {
-    alert('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
+    alert(error.response?.data?.message || '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
     console.error('로그인 오류:', error);
   }
 });
@@ -350,7 +355,12 @@ registerForm.addEventListener('submit', async (e) => {
   }
   
   try {
-    const response = await axios.post('/api/register', { username, password });
+    const response = await axios.post('/api/auth', { 
+      action: 'register',
+      username, 
+      password 
+    });
+    
     if (response.data.success) {
       alert('회원가입이 완료되었습니다. 로그인해주세요.');
       closeModal(registerModal);
@@ -358,7 +368,7 @@ registerForm.addEventListener('submit', async (e) => {
       openModal(loginModal);
     }
   } catch (error) {
-    alert('회원가입에 실패했습니다. 다른 아이디를 사용해주세요.');
+    alert(error.response?.data?.message || '회원가입에 실패했습니다.');
     console.error('회원가입 오류:', error);
   }
 });
@@ -386,7 +396,7 @@ postForm.addEventListener('submit', async (e) => {
     postForm.reset();
     fetchPosts(); // 게시글 목록 새로고침
   } catch (error) {
-    alert('게시글 작성에 실패했습니다.');
+    alert(error.response?.data?.message || '게시글 작성에 실패했습니다.');
     console.error('게시글 작성 오류:', error);
   }
 });
