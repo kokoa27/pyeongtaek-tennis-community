@@ -65,6 +65,21 @@
         <i class="fas fa-tennis-ball text-green-500 mr-2 text-2xl"></i>
         <h1 class="text-xl font-bold text-green-600">평택 테니스 커뮤니티</h1>
       </div>
+
+  <!-- 모듈식 JS 로드 -->
+  <script src="/js/state.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui-core.js"></script>
+  <script src="/js/ui-auth.js"></script>
+  <script src="/js/ui-weather.js"></script>
+  <script src="/js/ui-posts.js"></script>
+  <script src="/js/ui-courts.js"></script>
+  <script src="/js/ui-groups.js"></script>
+  <script src="/js/ui-chat.js"></script>
+  <script src="/js/ui-market.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
       <div id="navButtons">
         <button id="loginBtn" class="btn bg-white border border-green-500 text-green-600 px-4 py-2 rounded-full mr-2 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500">로그인</button>
         <button id="registerBtn" class="btn bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600">회원가입</button>
@@ -166,8 +181,8 @@
               <a href="#" class="text-gray-700 hover:text-green-600 hover:underline">라켓 추천 가이드</a>
             </li>
             <li class="flex items-center">
-              <i class="fas fa-users text-purple-400 mr-3"></i>
-              <a href="#" class="text-gray-700 hover:text-green-600 hover:underline">동호회 모집 공고</a>
+            <i class="fas fa-users text-purple-400 mr-3"></i>
+            <a href="#" id="showGroupsBtn" class="text-gray-700 hover:text-green-600 hover:underline">테니스 소모임 모집</a>
             </li>
           </ul>
         </div>
@@ -285,7 +300,285 @@
       </div>
     </div>
   </div>
+  
+  <!-- 모달: 소모임 목록 -->
+  <div id="groupsModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-4xl h-5/6 modal-content overflow-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">테니스 소모임 모집</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="flex justify-end mb-6">
+        <button id="newGroupBtn" class="btn bg-green-500 text-white px-5 py-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center">
+          <i class="fas fa-plus mr-2"></i>
+          새 모임 만들기
+        </button>
+      </div>
+      <div id="groupsList" class="space-y-6">
+        <!-- 소모임 정보가 여기에 들어갑니다 -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- 모달: 새 소모임 만들기 -->
+  <div id="createGroupModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-lg modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">새 소모임 만들기</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="createGroupForm">
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2 font-medium" for="groupTitle">모임 이름</label>
+          <input id="groupTitle" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="모임 이름을 입력하세요">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2 font-medium" for="groupDescription">모임 설명</label>
+          <textarea id="groupDescription" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent h-28" required placeholder="모임에 대한 설명을 입력하세요"></textarea>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="groupLocation">장소</label>
+            <input id="groupLocation" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="모임 장소를 입력하세요">
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="groupDate">날짜 및 시간</label>
+            <input id="groupDate" type="datetime-local" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="groupLevel">레벨</label>
+            <select id="groupLevel" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+              <option value="모든 레벨">모든 레벨</option>
+              <option value="입문">입문</option>
+              <option value="초급">초급</option>
+              <option value="중급">중급</option>
+              <option value="상급">상급</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="groupMaxMembers">최대 인원 (선택)</label>
+            <input id="groupMaxMembers" type="number" min="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="0 = 제한 없음">
+          </div>
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 mb-2 font-medium" for="groupContact">연락처 (선택)</label>
+          <input id="groupContact" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="연락처 정보 (전화번호, 카카오톡 ID 등)">
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" class="btn bg-gray-200 text-gray-700 px-5 py-3 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 closeModal">취소</button>
+          <button type="submit" class="btn bg-green-500 text-white px-5 py-3 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">모임 개설하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+    <div class="bg-white rounded-lg p-8 w-full max-w-4xl h-5/6 modal-content overflow-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">평택시 테니스장 정보</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="courtsList" class="space-y-6">
+        <!-- 테니스장 정보가 여기에 들어갑니다 -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- 모달: 소모임 목록 -->
+  <div id="groupsModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-4xl h-5/6 modal-content overflow-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">테니스 소모임 모집</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="flex justify-end mb-6">
+        <button id="newGroupBtn" class="btn bg-green-500 text-white px-5 py-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center">
+          <i class="fas fa-plus mr-2"></i>
+          새 모임 만들기
+        </button>
+      </div>
+      <div id="groupsList" class="space-y-6">
+        <!-- 소모임 정보가 여기에 들어갑니다 -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- 모달: 새 소모임 만들기 -->
+  <div id="createGroupModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-lg modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">새 소모임 만들기</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="createGroupForm">
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2 font-medium" for="groupTitle">모임 이름</label>
+          <input id="groupTitle" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="모임 이름을 입력하세요">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2 font-medium" for="groupDescription">모임 설명</label>
+          <textarea id="groupDescription" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent h-28" required placeholder="모임에 대한 설명을 입력하세요"></textarea>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="groupLocation">장소</label>
+            <input id="groupLocation" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="모임 장소를 입력하세요">
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="groupDate">날짜 및 시간</label>
+            <input id="groupDate" type="datetime-local" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="groupLevel">레벨</label>
+            <select id="groupLevel" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+              <option value="모든 레벨">모든 레벨</option>
+              <option value="입문">입문</option>
+              <option value="초급">초급</option>
+              <option value="중급">중급</option>
+              <option value="상급">상급</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="groupMaxMembers">최대 인원 (선택)</label>
+            <input id="groupMaxMembers" type="number" min="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="0 = 제한 없음">
+          </div>
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 mb-2 font-medium" for="groupContact">연락처 (선택)</label>
+          <input id="groupContact" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="연락처 정보 (전화번호, 카카오톡 ID 등)">
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" class="btn bg-gray-200 text-gray-700 px-5 py-3 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 closeModal">취소</button>
+          <button type="submit" class="btn bg-green-500 text-white px-5 py-3 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">모임 개설하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <script src="/script.js"></script>
-</body>
-</html>
+  <!-- 모달: 새 상품 등록 -->
+  <div id="createMarketItemModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-lg modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">새 상품 등록</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="createMarketItemForm">
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2 font-medium" for="itemTitle">상품명</label>
+          <input id="itemTitle" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="상품명을 입력하세요">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2 font-medium" for="itemDescription">상품 설명</label>
+          <textarea id="itemDescription" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent h-28" required placeholder="상품에 대한 설명을 입력하세요"></textarea>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="itemPrice">가격</label>
+            <input id="itemPrice" type="number" min="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required placeholder="가격을 입력하세요">
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium" for="itemCategory">카테고리</label>
+            <select id="itemCategory" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+              <option value="racket">라켓</option>
+              <option value="shoes">신발</option>
+              <option value="apparel">의류</option>
+              <option value="ball">공</option>
+              <option value="etc">기타</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2 font-medium" for="itemCondition">상품 상태</label>
+          <select id="itemCondition" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+            <option value="new">새 상품</option>
+            <option value="almost-new">거의 새 것</option>
+            <option value="used">중고</option>
+            <option value="old">오래됨</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2 font-medium" for="itemImageUrl">이미지 URL (선택)</label>
+          <input id="itemImageUrl" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="이미지 URL을 입력하세요">
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 mb-2 font-medium" for="itemContact">연락처 (선택)</label>
+          <input id="itemContact" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="연락처 정보 (전화번호, 카카오톡 ID 등)">
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" class="btn bg-gray-200 text-gray-700 px-5 py-3 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 closeModal">취소</button>
+          <button type="submit" class="btn bg-green-500 text-white px-5 py-3 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">등록하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 모달: 상품 상세 정보 -->
+  <div id="marketItemDetailModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-4xl modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800" id="detailItemTitle">상품 상세 정보</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="marketItemDetail" class="space-y-6">
+        <!-- 상품 상세 정보가 여기에 들어갑니다 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달: 채팅 목록 -->
+  <div id="chatListModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-8 w-full max-w-4xl h-5/6 modal-content overflow-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">채팅 목록</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="chatList" class="space-y-4">
+        <!-- 채팅방 목록이 여기에 들어갑니다 -->
+        <div class="py-12 text-center text-gray-400">
+          <i class="fas fa-comments text-5xl mb-4"></i>
+          <p>아직 채팅방이 없습니다.</p>
+          <p class="text-sm">다른 사용자와 대화를 시작해보세요!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달: 채팅방 -->
+  <div id="chatRoomModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
+    <div class="bg-white rounded-lg p-6 w-full max-w-2xl h-5/6 modal-content flex flex-col">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800" id="chatRoomTitle">채팅방</h2>
+        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="chatMessages" class="flex-1 overflow-y-auto bg-gray-100 p-4 rounded-lg mb-4 chat-container">
+        <!-- 채팅 메시지가 여기에 들어갑니다 -->
+      </div>
+      <form id="sendMessageForm" class="flex items-center space-x-2">
+        <input type="hidden" id="currentChatId">
+        <input id="messageContent" type="text" class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="메시지를 입력하세요" required>
+        <button type="submit" class="btn bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </form>
+    </div>
+  </div>

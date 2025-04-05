@@ -19,109 +19,89 @@ module.exports = async (req, res) => {
   try {
     const db = firebase.firestore();
     const usersCollection = db.collection('users');
-    
+
+    // POST 요청만 처리
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: '지원하지 않는 메서드입니다.' });
+    }
+
+    const { action, username, password } = req.body;
+
     // 로그인 처리
-    if (req.method === 'POST' && req.body.action === 'login') {
-      const { username, password } = req.body;
-      
-      // 필수 필드 검증
+    if (action === 'login') {
       if (!username || !password) {
-        return res.status(400).json({ 
-          success: false, 
-          message: '아이디와 비밀번호를 모두 입력해주세요.' 
-        });
+        return res.status(400).json({ success: false, message: '아이디와 비밀번호를 모두 입력해주세요.' });
       }
-      
-      // 사용자 조회
+
+      // 사용자 검색
       const userSnapshot = await usersCollection.where('username', '==', username).get();
       
       if (userSnapshot.empty) {
-        return res.status(401).json({ 
-          success: false, 
-          message: '아이디 또는 비밀번호가 일치하지 않습니다.' 
-        });
+        return res.status(401).json({ success: false, message: '아이디 또는 비밀번호가 올바르지 않습니다.' });
       }
-      
-      // 첫 번째 문서 가져오기
+
       const userDoc = userSnapshot.docs[0];
       const userData = userDoc.data();
-      
-      // 비밀번호 검증
+
+      // 비밀번호 확인
       const isPasswordValid = await bcrypt.compare(password, userData.password);
       
       if (!isPasswordValid) {
-        return res.status(401).json({ 
-          success: false, 
-          message: '아이디 또는 비밀번호가 일치하지 않습니다.' 
-        });
+        return res.status(401).json({ success: false, message: '아이디 또는 비밀번호가 올바르지 않습니다.' });
       }
-      
-      // 로그인 성공
+
+      // 응답 데이터에서 비밀번호 제외
+      const { password: _, ...userResponse } = userData;
+
       return res.status(200).json({
         success: true,
         user: {
           id: userDoc.id,
-          username: userData.username
+          username: userResponse.username
         }
       });
     }
-    
+
     // 회원가입 처리
-    if (req.method === 'POST' && req.body.action === 'register') {
-      const { username, password } = req.body;
-      
-      // 필수 필드 검증
+    if (action === 'register') {
       if (!username || !password) {
-        return res.status(400).json({ 
-          success: false, 
-          message: '아이디와 비밀번호를 모두 입력해주세요.' 
-        });
+        return res.status(400).json({ success: false, message: '아이디와 비밀번호를 모두 입력해주세요.' });
       }
+
+      // 아이디 중복 확인
+      const existingUser = await usersCollection.where('username', '==', username).get();
       
-      // 사용자명 중복 확인
-      const userSnapshot = await usersCollection.where('username', '==', username).get();
-      
-      if (!userSnapshot.empty) {
-        return res.status(400).json({ 
-          success: false, 
-          message: '이미 존재하는 사용자명입니다.' 
-        });
+      if (!existingUser.empty) {
+        return res.status(400).json({ success: false, message: '이미 사용 중인 아이디입니다.' });
       }
-      
-      // 비밀번호 해시화
+
+      // 비밀번호 해싱
       const hashedPassword = await bcrypt.hash(password, 10);
-      
-      // 새 사용자 데이터 생성
+
+      // 새 사용자 데이터
       const newUser = {
         username,
         password: hashedPassword,
         createdAt: new Date().toISOString()
       };
-      
+
       // Firestore에 저장
       const docRef = await usersCollection.add(newUser);
-      
-      // 응답 전송
+
       return res.status(201).json({
         success: true,
         user: {
           id: docRef.id,
-          username: newUser.username
+          username
         }
       });
     }
-    
-    // 지원하지 않는 메서드 처리
-    return res.status(405).json({ 
-      success: false, 
-      message: '지원하지 않는 메서드입니다.' 
-    });
-    
+
+    // 지원하지 않는 액션 처리
+    return res.status(400).json({ success: false, message: '지원하지 않는 액션입니다.' });
+
   } catch (error) {
     console.error('인증 API 오류:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: '서버 오류가 발생했습니다.' 
-    });
+    return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 };

@@ -1,0 +1,57 @@
+[
+  {
+    "name": "평택시립테니스장",
+    "location": "평택시 중앙로 123",
+    "courts": 6,
+    "surface": "하드코트",
+    "indoorOutdoor": "야외",
+    "price": "무료",
+    "image": "https://via.placeholder.com/300x200?text=평택시립테니스장",
+    "contact": "031-123-4567",
+    "openHours": "06:00 - 22:00"
+  },
+  {
+    "name": "송탄국제테니스장",
+    "location": "평택시 송탄로 456",
+    "courts": 4,
+    "surface": "클레이코트",
+    "indoorOutdoor": "실내/실외",
+    "price": "시간당 10,000원~",
+    "image": "https://via.placeholder.com/300x200?text=송탄국제테니스장",
+    "contact": "031-234-5678",
+    "openHours": "08:00 - 23:00"
+  },
+  {
+    "name": "안중테니스구장",
+    "location": "평택시 안중읍 안중로 789",
+    "courts": 2,
+    "surface": "하드코트",
+    "indoorOutdoor": "야외",
+    "price": "무료",
+    "image": "https://via.placeholder.com/300x200?text=안중테니스구장",
+    "contact": "031-345-6789",
+    "openHours": "06:00 - 20:00"
+  },
+  {
+    "name": "고덕국제신도시 테니스장",
+    "location": "평택시 고덕면 고덕로 345",
+    "courts": 8,
+    "surface": "하드코트",
+    "indoorOutdoor": "야외",
+    "price": "시간당 8,000원~",
+    "image": "https://via.placeholder.com/300x200?text=고덕국제신도시테니스장",
+    "contact": "031-456-7890",
+    "openHours": "07:00 - 21:00"
+  },
+  {
+    "name": "지산테니스클럽",
+    "location": "평택시 지산로 567",
+    "courts": 3,
+    "surface": "클레이코트",
+    "indoorOutdoor": "실내",
+    "price": "시간당 15,000원~",
+    "image": "https://via.placeholder.com/300x200?text=지산테니스클럽",
+    "contact": "031-567-8901",
+    "openHours": "09:00 - 23:00"
+  }
+]
