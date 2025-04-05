@@ -66,7 +66,12 @@
         <h1 class="text-xl font-bold text-green-600">평택 테니스 커뮤니티</h1>
       </div>
 
-  <!-- 모듈식 JS 로드 -->
+  <!-- App 객체 생성 및 모듈식 JS 로드 -->
+  <script>
+    // 전역 App 객체 초기화
+    window.App = {};
+    console.log('App 객체 초기화됨');
+  </script>
   <script src="/js/state.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/ui-core.js"></script>
@@ -78,6 +83,45 @@
   <script src="/js/ui-chat.js"></script>
   <script src="/js/ui-market.js"></script>
   <script src="/js/main.js"></script>
+  <script>
+    // 디버깅을 위한 코드
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM 완전히 로드됨');
+      console.log('App 객체 상태:', App);
+      
+      // 버튼 이벤트 확인
+      const loginBtn = document.getElementById('loginBtn');
+      if (loginBtn) {
+        console.log('로그인 버튼 발견');
+        loginBtn.addEventListener('click', function() {
+          console.log('로그인 버튼 클릭됨');
+          if (typeof App.UI !== 'undefined' && typeof App.UI.modal !== 'undefined') {
+            App.UI.modal.open('loginModal');
+          } else {
+            alert('UI 모듈이 제대로 로드되지 않았습니다.');
+          }
+        });
+      }
+      
+      // 다른 주요 버튼도 확인
+      const showTennisCourts = document.getElementById('showTennisCourts');
+      if (showTennisCourts) {
+        console.log('테니스장 정보 버튼 발견');
+        showTennisCourts.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('테니스장 정보 버튼 클릭됨');
+          if (typeof App.UI !== 'undefined' && typeof App.UI.modal !== 'undefined') {
+            App.UI.modal.open('courtInfoModal');
+            if (typeof App.UI.courts !== 'undefined') {
+              App.UI.courts.renderCourts();
+            }
+          } else {
+            alert('UI 모듈이 제대로 로드되지 않았습니다.');
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
       <div id="navButtons">
@@ -288,38 +332,6 @@
 
   <!-- 모달: 테니스장 정보 -->
   <div id="courtInfoModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
-    <div class="bg-white rounded-lg p-8 w-full max-w-4xl h-5/6 modal-content overflow-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">평택시 테니스장 정보</h2>
-        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div id="courtsList" class="space-y-6">
-        <!-- 테니스장 정보가 여기에 들어갑니다 -->
-      </div>
-    </div>
-  </div>
-  
-  <!-- 모달: 소모임 목록 -->
-  <div id="groupsModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden modal-container">
-    <div class="bg-white rounded-lg p-8 w-full max-w-4xl h-5/6 modal-content overflow-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">테니스 소모임 모집</h2>
-        <button class="closeModal text-gray-500 hover:text-gray-700 focus:outline-none">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="flex justify-end mb-6">
-        <button id="newGroupBtn" class="btn bg-green-500 text-white px-5 py-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center">
-          <i class="fas fa-plus mr-2"></i>
-          새 모임 만들기
-        </button>
-      </div>
-      <div id="groupsList" class="space-y-6">
-        <!-- 소모임 정보가 여기에 들어갑니다 -->
-      </div>
-    </div>
   </div>
   
   <!-- 모달: 새 소모임 만들기 -->
